@@ -1,0 +1,2 @@
+allow 72.67.3.149; #Tyer - radiate install
+allow 104.191.65.105; # Chat ID OGF570O6KQ Remote Mysql

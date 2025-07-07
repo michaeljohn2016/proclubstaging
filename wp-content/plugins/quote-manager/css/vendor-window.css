@@ -1,0 +1,7 @@
+.vendor-window #header-topbar, .vendor-window .site-header .container, .vendor-window #headercf, .vendor-window .noclubs, .vendor-window .site-footer, .vendor-window #sub-banner-wrap, .vendor-window #rec-rev, .vendor-window #value-is-our-trade {
+    display: none;
+}
+
+.vendor-window {
+    padding-top: 0px !important;
+}

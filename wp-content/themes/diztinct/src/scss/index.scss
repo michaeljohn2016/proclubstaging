@@ -1,0 +1,211 @@
+// @layer base {
+// // Custom base styles if necessary.
+// // See https://tailwindcss.com/docs/adding-base-styles.
+// }
+
+$small-width: 551px;
+$medium-width: 768px;
+$large-width: 960px;
+$xlarge-width: 1280px;
+
+@mixin small {
+  @media (min-width: #{$small-width}) {
+    @content;
+  }
+}
+
+@mixin medium {
+  @media (min-width: #{$medium-width}) {
+    @content;
+  }
+}
+
+@mixin large {
+  @media (min-width: #{$large-width}) {
+    @content;
+  }
+}
+
+@mixin xlarge {
+  @media (min-width: #{$xlarge-width}) {
+    @content;
+  }
+}
+
+@mixin clearfix {
+  &::before, &::after { content: " "; display: table; }
+  &::after { clear: both; }
+}
+
+@mixin grid-row($behavior: false) {
+  // use @include grid-row(nest); to include a nested row
+  @if $behavior == nest {
+    margin: 0 -20px;
+    max-width: none;
+    width: auto;
+  }
+
+  // use @include grid-row; to use a container row
+  @else {
+    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  // Clearfix for all rows
+  @include clearfix();
+}
+
+.is-sronly {
+  border: 0 !important;
+  clip: rect(1px,1px,1px,1px) !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+}
+
+.container {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1960px;
+    padding: 0 20px;
+    position: relative;
+
+    .header & {
+      padding: 0 10px;
+      max-width: 1920px;
+
+      @include medium {
+        width: 100%;
+      }
+    }
+
+    .site-footer & {
+      max-width: 1280px;
+    }
+
+    &.hs-container {
+      @include medium {
+        position: static;
+      }
+      @include large {
+        position: relative;
+      }
+    }
+
+    &.cf-container {
+      max-width: 1100px;
+    }
+}
+
+#blackout {
+  display: none;
+
+  &.on {
+    display: block;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    width: 75px;
+
+    @include medium {
+      left: 0;
+      width: 100%;
+      z-index: 50;
+    }
+  }
+}
+
+#nav-close {
+  height: 60px;
+  width: 75px;
+  margin-right: -75px;
+  position: absolute;
+  cursor: pointer;
+
+  @include medium {
+    #blackout & {
+      display: none;
+    }
+  }
+
+  svg {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    font-size: 28px;
+    color: #fff;
+  }
+}
+
+body {
+  @media screen and (max-width: 767px) {
+    padding-top: 150px;
+  }
+}
+
+* {
+	font-family: ubuntu, Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: sol-pro, Arial, Helvetica, sans-serif;
+}
+
+.page-heading {
+  text-transform: uppercase;
+  font-size: 21px;
+  line-height: 28px;
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+
+  @include medium {
+    font-size: 30px;
+    line-height: 72px;
+    margin-bottom: 25px;
+  }
+}
+
+.button-primary {
+  background: linear-gradient(90deg, #0056A5 -27.5%, #006FD6 35.81%);
+  border: 1px solid #005FB6;
+  border-radius: 1000px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  font-size: 21px;
+
+  &:hover {
+    background: linear-gradient(-90deg, #0056A5 -27.5%, #006FD6 35.81%);
+  }
+
+  svg {
+    margin-left: 2px;
+    font-size: 16px;
+  }
+}
+
+a {
+  cursor: pointer;
+}
+
+//----------------------------------------
+// Theme Styles.
+//----------------------------------------
+@import 'template-tags/index.scss';
+@import 'templates/index.scss';
+@import 'blocks/index.scss';
+@import 'wordpress-global/index.scss';

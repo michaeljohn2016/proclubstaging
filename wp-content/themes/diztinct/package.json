@@ -1,0 +1,75 @@
+{
+	"name": "proclubs",
+	"version": "2.1.0",
+	"private": true,
+	"description": "Custom theme by Diztinct, Inc for Pro Clubs.",
+	"author": "DiztinctInc <https://proclubs.com/>",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"WordPress",
+		"Theme"
+	],
+	"homepage": "http://localhost/proclubs/",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/WebDevStudios/wd_s.git"
+	},
+	"bugs": {
+		"url": "https://github.com/WebDevStudios/wd_s/issues"
+	},
+	"engines": {
+		"node": ">=14",
+		"npm": ">=7"
+	},
+	"devDependencies": {
+		"@arkweid/lefthook": "^0.7.6",
+		"@tailwindcss/postcss7-compat": "^2.2.8",
+		"@wordpress/prettier-config": "^1.1.0",
+		"@wordpress/scripts": "^17.1.0",
+		"browser-sync": "^2.27.5",
+		"clean-webpack-plugin": "^3.0.0",
+		"copy-webpack-plugin": "6.4.1",
+		"cross-env": "^7.0.3",
+		"css-loader": "^5.2.6",
+		"css-minimizer-webpack-plugin": "1.3.0",
+		"eslint-plugin-eslint-comments": "^3.2.0",
+		"eslint-webpack-plugin": "^2.5.4",
+		"file-loader": "^6.2.0",
+		"imagemin-webpack-plugin": "^2.4.2",
+		"mini-css-extract-plugin": "^1.6.2",
+		"npm-run-all": "^4.1.5",
+		"postcss-loader": "4.2.0",
+		"postcss-preset-env": "^6.7.0",
+		"prettier": "npm:wp-prettier@^2.2.1-beta-1",
+		"sass-loader": "10.2.0",
+		"stylelint-config-prettier": "^8.0.2",
+		"stylelint-webpack-plugin": "^2.2.2",
+		"svg-spritemap-webpack-plugin": "3.9.1",
+		"tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.4",
+		"url-loader": "^4.1.1",
+		"webpack-merge": "^5.8.0"
+	},
+	"scripts": {
+		"build": "cross-env NODE_ENV=production wp-scripts build --config webpack.prod.js",
+		"build:pot": "composer run-script pot",
+		"check-engines": "wp-scripts check-engines",
+		"check-licenses": "wp-scripts check-licenses",
+		"dev": "npm run watch",
+		"format": "run-p format:*",
+		"format:css": "npx prettier '**/*.scss' --write && npm run lint:css -- --fix",
+		"format:js": "wp-scripts format && npm run lint:js -- --fix",
+		"format:md": "npx markdownlint-cli . --fix",
+		"format:php": "composer run-script format",
+		"lint": "run-p lint:*",
+		"lint:css": "wp-scripts lint-style '**/*.scss'",
+		"lint:js": "wp-scripts lint-js",
+		"lint:md": "wp-scripts lint-md-docs",
+		"lint:php": "composer run-script lint",
+		"lint:pkg-json": "wp-scripts lint-pkg-json",
+		"packages-update": "wp-scripts packages-update",
+		"postinstall": "composer install --quiet && npm run build",
+		"start": "cross-env NODE_ENV=development wp-scripts start",
+		"sync": "browser-sync start --proxy 'http://localhost/proclubs' --no-open --files 'build/*.*, **/*.html, **/*.php, !node_modules/**/*.html'",
+		"watch": "run-p start sync"
+	}
+}
