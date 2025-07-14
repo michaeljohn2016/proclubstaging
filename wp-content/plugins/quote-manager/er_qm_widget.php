@@ -439,15 +439,11 @@
 					} else if ($("#widget_club_model").val()=="Select Model"){
 						alert("Please Select a Club Model");
 						return false;
-					} else if ($("#widget_club_condition").val()=="Select Condition"){
-						alert("Please Select a Club Condition");
-						return false;
 					} else {
 						var manufacturer = "&manufacturer=" + $("#widget_manufacturer").val();
 						var clubType = "&type=" + $("#widget_club_type").val();
 						var clubModel = "&model=" + $("#widget_club_model").val();
-						var clubCondition = "&condition=" + $("#widget_club_condition").val();
-						var quantity = "&quantity=" + $("#widget_club_condition").val();
+						var clubCondition = "&condition=Average"; // Default condition
 						var isSet = "&set=True";
 						var vendorWindow = "<?php echo ($_GET['vendorwindow'] ? "&vendorwindow=" . sanitize_text_field($_GET['vendorwindow']) : '' ); ?>";
 						if((clubType.indexOf("Set"))>1){

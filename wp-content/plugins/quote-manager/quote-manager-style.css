@@ -1072,7 +1072,7 @@ div#condition-selects select {
     border-radius: 0 0 5px 5px;
     max-height: 200px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 9999;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -1134,6 +1134,41 @@ div#condition-selects select {
 /* Club review page dropdown styles */
 #condition-selects .custom-dropdown-button {
     height: 51.6px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .custom-dropdown-button {
+        font-size: 16px;
+        padding: 10px 35px 10px 10px;
+        min-height: 44px;
+    }
+    
+    .custom-dropdown-arrow {
+        font-size: 10px;
+    }
+    
+    .custom-dropdown-options {
+        max-height: 150px;
+    }
+    
+    .custom-dropdown-option {
+        padding: 10px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-dropdown-button {
+        padding: 8px 30px 8px 8px;
+        min-height: 40px;
+        font-size: 14px;
+    }
+    
+    .custom-dropdown-option {
+        padding: 8px;
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 580px)  {
