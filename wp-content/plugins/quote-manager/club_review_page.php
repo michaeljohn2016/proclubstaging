@@ -119,7 +119,77 @@ $product_prices = json_decode($product_prices_raw, true);
 			
 <script>
 $(document).ready(function() {
-    // 1. Встановлюємо значення для select за замовчуванням
+    
+    // Custom dropdown functionality for club review page
+    function initCustomDropdowns() {
+        $('.custom-dropdown').each(function() {
+            var $dropdown = $(this);
+            var $button = $dropdown.find('.custom-dropdown-button');
+            var $options = $dropdown.find('.custom-dropdown-options');
+            var $hiddenInput = $dropdown.siblings('input[type="hidden"]');
+            
+            // Handle dropdown button click
+            $button.off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if ($dropdown.hasClass('disabled')) {
+                    return;
+                }
+                
+                // Close other dropdowns
+                $('.custom-dropdown').not($dropdown).removeClass('open');
+                
+                // Toggle current dropdown
+                $dropdown.toggleClass('open');
+            });
+            
+            // Handle option selection
+            $dropdown.find('.custom-dropdown-option').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var value = $(this).data('value');
+                var text = $(this).text();
+                var dataPrice = $(this).data('price');
+                
+                // Update button text
+                $button.find('.dropdown-text').text(text);
+                $button.attr('data-value', value);
+                
+                // Update hidden input
+                if ($hiddenInput.length) {
+                    $hiddenInput.val(value);
+                    // Transfer data-price attribute if it exists
+                    if (dataPrice !== undefined) {
+                        $hiddenInput.attr('data-price', dataPrice);
+                    }
+                }
+                
+                // Mark selected option
+                $dropdown.find('.custom-dropdown-option').removeClass('selected');
+                $(this).addClass('selected');
+                
+                // Close dropdown
+                $dropdown.removeClass('open');
+                
+                // Trigger update_price function
+                update_price();
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        $(document).off('click.customDropdown').on('click.customDropdown', function(e) {
+            if (!$(e.target).closest('.custom-dropdown').length) {
+                $('.custom-dropdown').removeClass('open');
+            }
+        });
+    }
+    
+    // Initialize dropdowns
+    initCustomDropdowns();
+    
+    // Set default values and trigger price update
     document.getElementById("widget_club_condition").value = "Average";
     update_price(); // Оновлюємо ціну при першому завантаженні
 });
@@ -176,7 +246,10 @@ function update_price() {
 
         // Якщо вибрано преміум стержень
         if (document.body.contains(document.getElementById('er_qm_premium_shaft')) && document.getElementById("er_qm_premium_shaft").value != "none") {
-            price = price + Number(document.getElementById('er_qm_premium_shaft').options[document.getElementById('er_qm_premium_shaft').selectedIndex].getAttribute('data-price'));
+            var premiumShaftPrice = document.getElementById('er_qm_premium_shaft').getAttribute('data-price');
+            if (premiumShaftPrice) {
+                price = price + Number(premiumShaftPrice);
+            }
             document.getElementById('shafttype').style.display = "none";  // Приховуємо вибір стержня, якщо преміум вибрано
         }
 
@@ -192,8 +265,77 @@ function update_price() {
 
 		<?php } else {?>
 			<script>
+			
+			// Custom dropdown functionality for simple case (no product prices)
+			function initCustomDropdowns() {
+				$('.custom-dropdown').each(function() {
+					var $dropdown = $(this);
+					var $button = $dropdown.find('.custom-dropdown-button');
+					var $options = $dropdown.find('.custom-dropdown-options');
+					var $hiddenInput = $dropdown.siblings('input[type="hidden"]');
+					
+					// Handle dropdown button click
+					$button.off('click').on('click', function(e) {
+						e.preventDefault();
+						e.stopPropagation();
+						
+						if ($dropdown.hasClass('disabled')) {
+							return;
+						}
+						
+						// Close other dropdowns
+						$('.custom-dropdown').not($dropdown).removeClass('open');
+						
+						// Toggle current dropdown
+						$dropdown.toggleClass('open');
+					});
+					
+					// Handle option selection
+					$dropdown.find('.custom-dropdown-option').off('click').on('click', function(e) {
+						e.preventDefault();
+						e.stopPropagation();
+						
+						var value = $(this).data('value');
+						var text = $(this).text();
+						var dataPrice = $(this).data('price');
+						
+						// Update button text
+						$button.find('.dropdown-text').text(text);
+						$button.attr('data-value', value);
+						
+						// Update hidden input
+						if ($hiddenInput.length) {
+							$hiddenInput.val(value);
+							// Transfer data-price attribute if it exists
+							if (dataPrice !== undefined) {
+								$hiddenInput.attr('data-price', dataPrice);
+							}
+						}
+						
+						// Mark selected option
+						$dropdown.find('.custom-dropdown-option').removeClass('selected');
+						$(this).addClass('selected');
+						
+						// Close dropdown
+						$dropdown.removeClass('open');
+						
+						// Trigger update_price function
+						update_price();
+					});
+				});
+				
+				// Close dropdowns when clicking outside
+				$(document).off('click.customDropdown').on('click.customDropdown', function(e) {
+					if (!$(e.target).closest('.custom-dropdown').length) {
+						$('.custom-dropdown').removeClass('open');
+					}
+				});
+			}
 				
 			$( document ).ready(function() {
+				// Initialize dropdowns
+				initCustomDropdowns();
+				
 			   document.getElementById("widget_club_condition").value = "Average";
 			});
 			function update_price() {
@@ -225,7 +367,10 @@ function update_price() {
 					var price = <?php echo substr(filter_var($price, FILTER_SANITIZE_NUMBER_INT), 0, -2); ?> * cond;
 					document.getElementById('shafttype').style.display = "block";
 					if (document.body.contains(document.getElementById('er_qm_premium_shaft')) && document.getElementById("er_qm_premium_shaft").value != "none") {
-						price = price + Number(document.getElementById('er_qm_premium_shaft').options[document.getElementById('er_qm_premium_shaft').selectedIndex].getAttribute('data-price'));
+						var premiumShaftPrice = document.getElementById('er_qm_premium_shaft').getAttribute('data-price');
+						if (premiumShaftPrice) {
+							price = price + Number(premiumShaftPrice);
+						}
 						document.getElementById('shafttype').style.display = "none";
 					}
 					if (document.body.contains(document.getElementById('premium-shaft'))) {
@@ -305,11 +450,18 @@ function update_price() {
 					</div>
 					<label>
 						<strong>Quality (Condition Scale)</strong>
-						<select id="widget_club_condition" onchange="update_price();">
-							<option value='Below Average'>Below Average</option>
-							<option selected value='Average'>Average</option>
-							<option value='New'>New</option>
-						</select>
+						<div class="custom-dropdown" id="widget_club_condition_dropdown">
+							<div class="custom-dropdown-button" data-value="Average">
+								<span class="dropdown-text">Average</span>
+								<span class="custom-dropdown-arrow">▼</span>
+							</div>
+							<div class="custom-dropdown-options">
+								<div class="custom-dropdown-option" data-value="Below Average">Below Average</div>
+								<div class="custom-dropdown-option selected" data-value="Average">Average</div>
+								<div class="custom-dropdown-option" data-value="New">New</div>
+							</div>
+						</div>
+						<input type="hidden" id="widget_club_condition" value="Average" />
 					</label>
 				<div id="premium-shaft">
 			<?php if ($premium_shafts_available) {
@@ -320,15 +472,22 @@ function update_price() {
 				?>
 				<label>
 					<strong>Premium Shaft</strong>
-					<select id="er_qm_premium_shaft" onchange="update_price();">
-						<option value="none"><?php echo "None"; ?></option>
-						<?php foreach ($premium_shafts_list as $shaft) { 
-							$premium_shaft_price = get_post_meta($shaft->ID, 'premium-shaft-price', true) ? number_format( intval( get_post_meta($shaft->ID, 'premium-shaft-price', true) ), 2) : false;
-							$premium_shaft_price = substr(filter_var($premium_shaft_price, FILTER_SANITIZE_NUMBER_INT), 0, -2)
-							?>
-							<option value="<?php echo $shaft->post_name; ?>" data-price="<?php echo $premium_shaft_price; ?>"><?php echo $shaft->post_title; ?></option>
-						<?php } ?>
-					</select>
+					<div class="custom-dropdown" id="er_qm_premium_shaft_dropdown">
+						<div class="custom-dropdown-button" data-value="none">
+							<span class="dropdown-text">None</span>
+							<span class="custom-dropdown-arrow">▼</span>
+						</div>
+						<div class="custom-dropdown-options">
+							<div class="custom-dropdown-option selected" data-value="none">None</div>
+							<?php foreach ($premium_shafts_list as $shaft) { 
+								$premium_shaft_price = get_post_meta($shaft->ID, 'premium-shaft-price', true) ? number_format( intval( get_post_meta($shaft->ID, 'premium-shaft-price', true) ), 2) : false;
+								$premium_shaft_price = substr(filter_var($premium_shaft_price, FILTER_SANITIZE_NUMBER_INT), 0, -2)
+								?>
+								<div class="custom-dropdown-option" data-value="<?php echo $shaft->post_name; ?>" data-price="<?php echo $premium_shaft_price; ?>"><?php echo $shaft->post_title; ?></div>
+							<?php } ?>
+						</div>
+					</div>
+					<input type="hidden" id="er_qm_premium_shaft" value="none" />
 				</label>
 			<?php } ?>
 				</div>
@@ -341,16 +500,23 @@ function update_price() {
 					<?php if($_GET['type']=="Iron Set"){ ?>
 						<label>
 							<strong>Iron Set Quantity</strong>
-							<select name='iron_set_quantity' class='iron_set_quantity' id='er_qm_iron_set_quantity' onchange="update_price();">
-								<option name='iron_set_quantity' value='5'>5</option>
-								<option name='iron_set_quantity' value='6'>6</option>
-								<option name='iron_set_quantity' value='7'>7</option>
-								<option name="iron_set_quantity" value="8" selected>8</option>
-								<option name='iron_set_quantity' value='9'>9</option>
-								<option name='iron_set_quantity' value='10'>10</option>
-								<option name='iron_set_quantity' value='11'>11</option>
-								<option name='iron_set_quantity' value='12'>12</option>
-							</select>
+							<div class="custom-dropdown" id="er_qm_iron_set_quantity_dropdown">
+								<div class="custom-dropdown-button" data-value="8">
+									<span class="dropdown-text">8</span>
+									<span class="custom-dropdown-arrow">▼</span>
+								</div>
+								<div class="custom-dropdown-options">
+									<div class="custom-dropdown-option" data-value="5">5</div>
+									<div class="custom-dropdown-option" data-value="6">6</div>
+									<div class="custom-dropdown-option" data-value="7">7</div>
+									<div class="custom-dropdown-option selected" data-value="8">8</div>
+									<div class="custom-dropdown-option" data-value="9">9</div>
+									<div class="custom-dropdown-option" data-value="10">10</div>
+									<div class="custom-dropdown-option" data-value="11">11</div>
+									<div class="custom-dropdown-option" data-value="12">12</div>
+								</div>
+							</div>
+							<input type="hidden" name="iron_set_quantity" class="iron_set_quantity" id="er_qm_iron_set_quantity" value="8" />
 						</label>
 					<?php }	?>
 
@@ -388,16 +554,22 @@ $default_material = get_option("default_shaft_type_{$club_type}");
 <?php if (!empty($product_prices) && is_array($product_prices)) : ?>
     <div id="shafttype">
         <strong>Shaft Type:</strong>
-        <select id="er_qm_shaft_type" onchange="update_price();" style="font-weight: bold;">
-	        <?php foreach ($product_prices as $option) : 
-	            // Якщо дефолтний матеріал співпадає з матеріалом в опції, встановлюємо його як вибраний
-	            $is_selected = ($option['material'] === $default_material) ? 'selected' : ''; 
-	        ?>
-	            <option value="<?php echo esc_attr($option['material']); ?>" <?php echo $is_selected; ?>>
-	                <?php echo esc_html($option['material']); ?>
-	            </option>
-	        <?php endforeach; ?>
-	    </select>
+        <div class="custom-dropdown" id="er_qm_shaft_type_dropdown">
+			<div class="custom-dropdown-button" data-value="<?php echo esc_attr($default_material); ?>">
+				<span class="dropdown-text"><?php echo esc_html($default_material); ?></span>
+				<span class="custom-dropdown-arrow">▼</span>
+			</div>
+			<div class="custom-dropdown-options">
+				<?php foreach ($product_prices as $option) : 
+					$is_selected = ($option['material'] === $default_material) ? 'selected' : ''; 
+				?>
+					<div class="custom-dropdown-option <?php echo $is_selected; ?>" data-value="<?php echo esc_attr($option['material']); ?>">
+						<?php echo esc_html($option['material']); ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<input type="hidden" id="er_qm_shaft_type" value="<?php echo esc_attr($default_material); ?>" />
     </div>
 <?php elseif (!empty(get_post_meta($order_postid, "club_shaft_type", true))) : ?>
     <div id="shafttype">

@@ -219,6 +219,109 @@
 			<script type="text/javascript" >	
 			jQuery(document).ready(function($) {
 
+				// Custom dropdown functionality
+				function initCustomDropdowns() {
+					$('.custom-dropdown').each(function() {
+						var $dropdown = $(this);
+						var $button = $dropdown.find('.custom-dropdown-button');
+						var $options = $dropdown.find('.custom-dropdown-options');
+						var $hiddenInput = $dropdown.siblings('input[type="hidden"]');
+						
+						// Handle dropdown button click
+						$button.off('click').on('click', function(e) {
+							e.preventDefault();
+							e.stopPropagation();
+							
+							if ($dropdown.hasClass('disabled')) {
+								return;
+							}
+							
+							// Close other dropdowns
+							$('.custom-dropdown').not($dropdown).removeClass('open');
+							
+							// Toggle current dropdown
+							$dropdown.toggleClass('open');
+						});
+						
+						// Handle option selection
+						$dropdown.find('.custom-dropdown-option').off('click').on('click', function(e) {
+							e.preventDefault();
+							e.stopPropagation();
+							
+							var value = $(this).data('value');
+							var text = $(this).text();
+							
+							// Update button text
+							$button.find('.dropdown-text').text(text);
+							$button.attr('data-value', value);
+							
+							// Update hidden input
+							if ($hiddenInput.length) {
+								$hiddenInput.val(value).trigger('change');
+							}
+							
+							// Mark selected option
+							$dropdown.find('.custom-dropdown-option').removeClass('selected');
+							$(this).addClass('selected');
+							
+							// Close dropdown
+							$dropdown.removeClass('open');
+						});
+					});
+					
+					// Close dropdowns when clicking outside
+					$(document).off('click.customDropdown').on('click.customDropdown', function(e) {
+						if (!$(e.target).closest('.custom-dropdown').length) {
+							$('.custom-dropdown').removeClass('open');
+						}
+					});
+				}
+				
+				// Enable/disable dropdown
+				function setDropdownState(dropdownId, enabled) {
+					var $dropdown = $('#' + dropdownId + '_dropdown');
+					var $button = $dropdown.find('.custom-dropdown-button');
+					
+					if (enabled) {
+						$dropdown.removeClass('disabled');
+						$button.removeClass('disabled');
+					} else {
+						$dropdown.addClass('disabled');
+						$button.addClass('disabled');
+						$dropdown.removeClass('open');
+					}
+				}
+				
+				// Clear dropdown options and add new ones
+				function updateDropdownOptions(dropdownId, options, defaultText) {
+					var $dropdown = $('#' + dropdownId + '_dropdown');
+					var $optionsContainer = $dropdown.find('.custom-dropdown-options');
+					var $button = $dropdown.find('.custom-dropdown-button');
+					var $hiddenInput = $('#' + dropdownId);
+					
+					// Clear existing options
+					$optionsContainer.empty();
+					
+					// Add default option
+					$optionsContainer.append('<div class="custom-dropdown-option" data-value="' + defaultText + '">' + defaultText + '</div>');
+					
+					// Add new options
+					options.forEach(function(option) {
+						$optionsContainer.append('<div class="custom-dropdown-option" data-value="' + option + '">' + option + '</div>');
+					});
+					
+					// Reset button to default
+					$button.find('.dropdown-text').text(defaultText);
+					$button.attr('data-value', defaultText);
+					$hiddenInput.val(defaultText);
+					
+					// Re-initialize event handlers for new options
+					initCustomDropdowns();
+				}
+				
+				// Initialize dropdowns
+				initCustomDropdowns();
+
 				$('#anotherclub').click(function() {
 					$('#newclub_hid').toggle("slow");
 				});
@@ -236,24 +339,19 @@
 						action: 'repopulate_widget_club_type',
 						selected_manufacturer: manufacturer
 					};
-					$("#widget_club_type").find('option').remove().end();
-					$("#widget_club_type").append("<option value='Select Club Type'>Loading</option>");
-					 $('#widget_club_type').prop('disabled', true);
-					$("#widget_club_model").find('option').remove().end();
-					$("#widget_club_model").append("<option value='Select Model'>Loading</option>");
+					
+					// Show loading state
+					updateDropdownOptions('widget_club_type', [], 'Loading...');
+					setDropdownState('widget_club_type', false);
+					updateDropdownOptions('widget_club_model', [], 'Loading...');
+					setDropdownState('widget_club_model', false);
+					
 					$.post(ajaxurl, data, function(response) {
-						
-						$("#widget_club_type").find('option').remove().end();
-						$("#widget_club_type").append("<option value='Select Club Type'>Select Club Type</option>");
-						$('#widget_club_type').prop('disabled', false);
-						$("#widget_club_model").find('option').remove().end();
-						$("#widget_club_model").append("<option value='Select Model'>Select Model</option>");
-						$("#widget_club_model").find('option').remove().end();
-						$("#widget_club_model").append("<option value='Select Model'>Select Model</option>");
 						var convertedData = JSON.parse(response);
-						for(var i = 0; i<convertedData.length;i++){						
-							$("#widget_club_type").append("<option value='" + convertedData[i] + "'>" + convertedData[i] + "</option>");
-						}
+						updateDropdownOptions('widget_club_type', convertedData, 'Select Club Type');
+						setDropdownState('widget_club_type', true);
+						updateDropdownOptions('widget_club_model', [], 'Select Model');
+						setDropdownState('widget_club_model', false);
 					});
 				});
 				
@@ -273,18 +371,15 @@
 						selected_manufacturer: manufacturer,
 						selected_club_type: clubType
 					};
-					$("#widget_club_model").find('option').remove().end();
-					$("#widget_club_model").append("<option value='Select Model'>Loading</option>");
-					$('#widget_club_model').prop('disabled', true);
+					
+					// Show loading state
+					updateDropdownOptions('widget_club_model', [], 'Loading...');
+					setDropdownState('widget_club_model', false);
+					
 					$.post(ajaxurl, data, function(response) {
-						$("#widget_club_model").find('option').remove().end();
-						$('#widget_club_model').prop('disabled', false);
-						$("#widget_club_model").append("<option value='Select Model'>Select Model</option>");
 						var convertedData = JSON.parse(response);
-						for(var i = 0; i<convertedData.length;i++){						
-							$("#widget_club_model").append("<option value='" + convertedData[i] + "'>" + convertedData[i] + "</option>");
-						}
-						
+						updateDropdownOptions('widget_club_model', convertedData, 'Select Model');
+						setDropdownState('widget_club_model', true);
 					});
 				});
 				
@@ -1369,32 +1464,51 @@ console.log('hhhh')
 					<h6 class="cf-title">Club Finder</h6>
 					<div class="clubselect">
 						<label style="color: #fff;">Manufacturer
-							<select id="widget_manufacturer">
-							<option selected value='Select Manufacturer'>Select Manufacturer</option>
-							<?php
-							
-							foreach($query_data_for_manufacturer as $querydatum){
-								$select_manu = $querydatum->club_manufacturer;
-								echo "<option value='".$select_manu."'>".$select_manu."</option>";
-							}
-							
-							?>
-							</select>
+							<div class="custom-dropdown" id="widget_manufacturer_dropdown">
+								<div class="custom-dropdown-button" data-value="Select Manufacturer">
+									<span class="dropdown-text">Select Manufacturer</span>
+									<span class="custom-dropdown-arrow">▼</span>
+								</div>
+								<div class="custom-dropdown-options">
+									<div class="custom-dropdown-option" data-value="Select Manufacturer">Select Manufacturer</div>
+									<?php
+									foreach($query_data_for_manufacturer as $querydatum){
+										$select_manu = $querydatum->club_manufacturer;
+										echo "<div class='custom-dropdown-option' data-value='".$select_manu."'>".$select_manu."</div>";
+									}
+									?>
+								</div>
+							</div>
+							<input type="hidden" id="widget_manufacturer" value="Select Manufacturer" />
 						</label>
 					</div>
 					<div class="clubselect" style="margin-top: 5px; display: none;" id="widget_club_type_field">
 						<label style="color: #fff;">Club Type
-							<select id="widget_club_type" disabled>
-								<option value='Select Club Type' >Select Club Type</option>
-							</select>
+							<div class="custom-dropdown disabled" id="widget_club_type_dropdown">
+								<div class="custom-dropdown-button disabled" data-value="Select Club Type">
+									<span class="dropdown-text">Select Club Type</span>
+									<span class="custom-dropdown-arrow">▼</span>
+								</div>
+								<div class="custom-dropdown-options">
+									<div class="custom-dropdown-option" data-value="Select Club Type">Select Club Type</div>
+								</div>
+							</div>
+							<input type="hidden" id="widget_club_type" value="Select Club Type" />
 						</label>
 					</div>
 					
 					<div class="clubselect" style="margin-top: 5px; display: none;" id="widget_model_field">
 						<label style="color: #fff;">Model
-							<select id="widget_club_model" disabled>
-								<option value='Select Model'>Select Model</option>
-							</select>
+							<div class="custom-dropdown disabled" id="widget_club_model_dropdown">
+								<div class="custom-dropdown-button disabled" data-value="Select Model">
+									<span class="dropdown-text">Select Model</span>
+									<span class="custom-dropdown-arrow">▼</span>
+								</div>
+								<div class="custom-dropdown-options">
+									<div class="custom-dropdown-option" data-value="Select Model">Select Model</div>
+								</div>
+							</div>
+							<input type="hidden" id="widget_club_model" value="Select Model" />
 						</label>
 					</div>
 					
